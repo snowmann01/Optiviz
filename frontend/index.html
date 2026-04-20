@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TAC Optimizer Visualizer</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚙</span>
+        <span class="logo-text">TAC <span class="accent">Optimizer</span></span>
+      </div>
+      <p class="subtitle">Three Address Code — Optimization Visualizer</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- File Upload -->
+    <section class="upload-section">
+      <label for="jsonUpload" class="upload-label">
+        <span class="upload-icon">📂</span>
+        Load <code>output.json</code> from the compiler
+      </label>
+      <input type="file" id="jsonUpload" accept=".json" />
+      <span id="fileName" class="file-name">No file selected</span>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="stats-bar" id="statsBar" style="display:none">
+      <div class="stat-card" id="statOriginal">
+        <div class="stat-num" id="numOriginal">-</div>
+        <div class="stat-label">Original Instructions</div>
+      </div>
+      <div class="stat-card" id="statOptimized">
+        <div class="stat-num" id="numOptimized">-</div>
+        <div class="stat-label">After Optimization</div>
+      </div>
+      <div class="stat-card" id="statChanges">
+        <div class="stat-num" id="numChanges">-</div>
+        <div class="stat-label">Optimizations Applied</div>
+      </div>
+      <div class="stat-card" id="statReduced">
+        <div class="stat-num" id="numReduced">-</div>
+        <div class="stat-label">Instructions Removed</div>
+      </div>
+    </section>
+
+    <!-- IR Panels -->
+    <section class="ir-section" id="irSection" style="display:none">
+      <div class="ir-panel">
+        <div class="panel-header original-header">
+          <span>📄 Original IR</span>
+        </div>
+        <div class="ir-code" id="originalCode"></div>
+      </div>
+      <div class="ir-panel">
+        <div class="panel-header optimized-header">
+          <span>⚡ Optimized IR</span>
+        </div>
+        <div class="ir-code" id="optimizedCode"></div>
+      </div>
+    </section>
+
+    <!-- Optimization Log -->
+    <section class="log-section" id="logSection" style="display:none">
+      <div class="log-header">
+        <h2>🔍 Optimization Log</h2>
+        <div class="pass-filters" id="passFilters"></div>
+      </div>
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>Pass</th>
+            <th>Before</th>
+            <th>After</th>
+          </tr>
+        </thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </section>
+
+    <!-- Empty state -->
+    <section class="empty-state" id="emptyState">
+      <div class="empty-icon">🔧</div>
+      <h2>No data loaded</h2>
+      <p>Run the C++ compiler on a <code>.tac</code> file to generate <code>output.json</code>,<br/>
+         then load it here to visualize the optimizations.</p>
+      <div class="steps">
+        <div class="step"><span class="step-num">1</span> Write a <code>.tac</code> file</div>
+        <div class="step"><span class="step-num">2</span> Run <code>./compiler input.tac output.json</code></div>
+        <div class="step"><span class="step-num">3</span> Load <code>output.json</code> above</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="src/visualizer.js"></script>
+</body>
+</html>
