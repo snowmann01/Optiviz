@@ -1,11 +1,34 @@
-let data = null;
+// ── State ─────────────────────────────────────────────────────────────────────
+let data          = null;
 let activeFilters = new Set();
+let cSourceText   = null;
 
+// ── C File Upload ─────────────────────────────────────────────────────────────
+document.getElementById('cUpload').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  document.getElementById('cFileName').textContent = file.name;
+  document.getElementById('compileHint').innerHTML =
+    `<span class="hint-icon">💡</span> Now run: <code>compiler.exe ${file.name} output.json</code>`;
+
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    cSourceText = ev.target.result;
+    renderCSource(cSourceText);
+
+    // If JSON already loaded, make sure panels are visible
+    if (data) showPanels();
+  };
+  reader.readAsText(file);
+});
+
+// ── JSON Upload ───────────────────────────────────────────────────────────────
 document.getElementById('jsonUpload').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
 
-  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('jsonFileName').textContent = file.name;
 
   const reader = new FileReader();
   reader.onload = function(ev) {
@@ -19,31 +42,70 @@ document.getElementById('jsonUpload').addEventListener('change', function(e) {
   reader.readAsText(file);
 });
 
+// ── Render C Source Panel ─────────────────────────────────────────────────────
+function renderCSource(source) {
+  const panel = document.getElementById('cSourcePanel');
+  panel.innerHTML = ''; // clear "load a .c file" message
 
-function render(data) {
-  document.getElementById('emptyState').style.display   = 'none';
-  document.getElementById('statsBar').style.display     = 'grid';
-  document.getElementById('irSection').style.display    = 'grid';
-  document.getElementById('logSection').style.display   = 'block';
+  // Split source into lines and render with line numbers
+  const lines = source.split('\n');
+  lines.forEach((line, idx) => {
+    const div = document.createElement('div');
+    div.className = 'ir-line';
 
+    const lineNum = document.createElement('span');
+    lineNum.className = 'line-num';
+    lineNum.textContent = idx + 1;
 
-  const changedOriginal  = new Set();
-  const changedOptimized = new Set();
+    const lineText = document.createElement('span');
+    lineText.className = 'line-text c-line';
+    lineText.textContent = line || ' ';
 
-  data.logs.forEach(log => {
-    changedOriginal.add(log.lineIndex);
-    changedOptimized.add(log.lineIndex);
+    // Basic syntax coloring
+    const trimmed = line.trim();
+    if (trimmed.startsWith('//')) {
+      lineText.className = 'line-text c-comment';
+    } else if (/^\s*(int|if|else|while|return)\b/.test(line)) {
+      lineText.className = 'line-text c-keyword';
+    } else if (trimmed === '{' || trimmed === '}') {
+      lineText.className = 'line-text c-brace';
+    }
+
+    div.appendChild(lineNum);
+    div.appendChild(lineText);
+    panel.appendChild(div);
   });
+}
 
-  renderStats(data, changedOriginal);
-  renderIR('originalCode',  data.original,  changedOriginal,  false);
-  renderIR('optimizedCode', data.optimized, changedOptimized, true);
+// ── Show Panels ───────────────────────────────────────────────────────────────
+function showPanels() {
+  document.getElementById('emptyState').style.display     = 'none';
+  document.getElementById('pipelineBanner').style.display = 'flex';
+  document.getElementById('statsBar').style.display       = 'grid';
+  document.getElementById('panelsSection').style.display  = 'grid';
+  document.getElementById('logSection').style.display     = 'block';
+}
+
+// ── Main Render ───────────────────────────────────────────────────────────────
+function render(data) {
+  showPanels();
+
+  // If C source was loaded, render it now
+  if (cSourceText) {
+    renderCSource(cSourceText);
+  }
+
+  const changedLines = new Set(data.logs.map(l => l.lineIndex));
+
+  renderStats(data);
+  renderIR('originalCode',  data.original,  changedLines, false);
+  renderIR('optimizedCode', data.optimized, changedLines, true);
   renderFilters(data.logs);
   renderLogs(data.logs);
 }
 
-
-function renderStats(data, changedSet) {
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function renderStats(data) {
   const removed = data.optimized.filter(i => i.op === 'NOP').length;
   document.getElementById('numOriginal').textContent  = data.original.length;
   document.getElementById('numOptimized').textContent = data.optimized.length;
@@ -51,9 +113,9 @@ function renderStats(data, changedSet) {
   document.getElementById('numReduced').textContent   = removed;
 }
 
-
+// ── IR Rendering ──────────────────────────────────────────────────────────────
 function getOpClass(op) {
-  switch(op) {
+  switch (op) {
     case 'ASSIGN':  return 'op-assign';
     case 'ADD': case 'SUB': case 'MUL': case 'DIV': return 'op-arith';
     case 'LABEL':   return 'op-label';
@@ -65,21 +127,19 @@ function getOpClass(op) {
   }
 }
 
-function renderIR(containerId, instructions, highlightSet, isOptimized) {
+function renderIR(containerId, instructions, changedLines, isOptimized) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
 
   instructions.forEach((instr, idx) => {
     const div = document.createElement('div');
     div.className = 'ir-line';
-    div.dataset.index = idx;
 
-    // Determine highlight class
-    if (instr.op === 'NOP' && isOptimized) {
+    if (isOptimized && instr.op === 'NOP') {
       div.classList.add('line-removed');
-    } else if (highlightSet.has(idx) && isOptimized) {
+    } else if (isOptimized && changedLines.has(idx)) {
       div.classList.add('line-added');
-    } else if (highlightSet.has(idx) && !isOptimized) {
+    } else if (!isOptimized && changedLines.has(idx)) {
       div.classList.add('line-changed');
     }
 
@@ -89,13 +149,7 @@ function renderIR(containerId, instructions, highlightSet, isOptimized) {
 
     const lineText = document.createElement('span');
     lineText.className = 'line-text ' + getOpClass(instr.op);
-
-    // Format text nicely
-    if (instr.op === 'NOP') {
-      lineText.textContent = '(removed)';
-    } else {
-      lineText.textContent = instr.text || '???';
-    }
+    lineText.textContent = instr.op === 'NOP' ? '(removed)' : (instr.text || '???');
 
     div.appendChild(lineNum);
     div.appendChild(lineText);
@@ -103,10 +157,11 @@ function renderIR(containerId, instructions, highlightSet, isOptimized) {
   });
 }
 
+// ── Pass Filters ──────────────────────────────────────────────────────────────
 const PASS_COLORS = {
-  'Constant Folding':       'badge-cf',
-  'Constant Propagation':   'badge-cp',
-  'Dead Code Elimination':  'badge-dce',
+  'Constant Folding':         'badge-cf',
+  'Constant Propagation':     'badge-cp',
+  'Dead Code Elimination':    'badge-dce',
   'Algebraic Simplification': 'badge-as',
 };
 
@@ -138,6 +193,7 @@ function toggleFilter(pass, badge) {
   renderLogs(data.logs);
 }
 
+// ── Log Table ─────────────────────────────────────────────────────────────────
 function renderLogs(logs) {
   const tbody = document.getElementById('logBody');
   tbody.innerHTML = '';
@@ -154,7 +210,6 @@ function renderLogs(logs) {
   filtered.forEach(log => {
     const tr = document.createElement('tr');
     const isRemoved = log.after === 'REMOVED';
-
     tr.innerHTML = `
       <td>${log.lineIndex + 1}</td>
       <td><span class="pass-badge ${PASS_COLORS[log.pass] || ''}">${log.pass}</span></td>
@@ -167,6 +222,7 @@ function renderLogs(logs) {
   });
 }
 
+// ── Utility ───────────────────────────────────────────────────────────────────
 function escapeHTML(str) {
   return str
     .replace(/&/g, '&amp;')

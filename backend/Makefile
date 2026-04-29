@@ -14,9 +14,12 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET) compiler.exe
 
-run: $(TARGET)
-	./$(TARGET) ../samples/sample1.tac ../frontend/output.json
+run-c:
+	./compiler ../samples/sample1.c ../frontend/output.json
 
-.PHONY: all clean run
+run-tac:
+	./compiler ../samples/sample1.tac ../frontend/output.json
+
+.PHONY: all clean run-c run-tac

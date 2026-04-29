@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TAC Optimizer Visualizer</title>
+  <title>OptiViz — TAC Optimizer</title>
   <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
@@ -12,57 +12,117 @@
     <div class="header-inner">
       <div class="logo">
         <span class="logo-icon">⚙</span>
-        <span class="logo-text">TAC <span class="accent">Optimizer</span></span>
+        <span class="logo-text">Opti<span class="accent">Viz</span></span>
       </div>
-      <p class="subtitle">Three Address Code — Optimization Visualizer</p>
+      <p class="subtitle">C Source → Lexer → Parser → AST → TAC → Optimizer → Visualizer</p>
     </div>
   </header>
 
   <main>
-    <!-- File Upload -->
-    <section class="upload-section">
-      <label for="jsonUpload" class="upload-label">
-        <span class="upload-icon">📂</span>
-        Load <code>output.json</code> from the compiler
-      </label>
-      <input type="file" id="jsonUpload" accept=".json" />
-      <span id="fileName" class="file-name">No file selected</span>
+
+    <!-- Upload Row -->
+    <section class="upload-row">
+
+      <!-- C Source Upload -->
+      <div class="upload-card">
+        <div class="upload-card-title">
+          <span class="upload-card-icon">📝</span>
+          Step 1 — Load C Source File
+        </div>
+        <label for="cUpload" class="upload-label c-label">
+          📂 Load <code>.c</code> file
+        </label>
+        <input type="file" id="cUpload" accept=".c" />
+        <span id="cFileName" class="file-name">No file selected</span>
+        <div class="how-to-compile" id="compileHint">
+          <span class="hint-icon">💡</span>
+          Run: <code>compiler.exe program.c output.json</code>
+        </div>
+      </div>
+
+      <!-- JSON Upload -->
+      <div class="upload-card">
+        <div class="upload-card-title">
+          <span class="upload-card-icon">📦</span>
+          Step 2 — Load Compiler Output
+        </div>
+        <label for="jsonUpload" class="upload-label json-label">
+          📂 Load <code>output.json</code>
+        </label>
+        <input type="file" id="jsonUpload" accept=".json" />
+        <span id="jsonFileName" class="file-name">No file selected</span>
+      </div>
+
     </section>
+
+    <!-- Pipeline Banner -->
+    <div class="pipeline-banner" id="pipelineBanner" style="display:none">
+      <div class="pipe-step done">📝 C Source</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step done">🔤 Lexer</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step done">🌳 Parser</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step done">🧩 AST</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step done">📋 TAC Gen</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step active">⚡ Optimizer</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step active">🌐 Visualizer</div>
+    </div>
 
     <!-- Stats Bar -->
     <section class="stats-bar" id="statsBar" style="display:none">
-      <div class="stat-card" id="statOriginal">
+      <div class="stat-card">
         <div class="stat-num" id="numOriginal">-</div>
         <div class="stat-label">Original Instructions</div>
       </div>
-      <div class="stat-card" id="statOptimized">
+      <div class="stat-card">
         <div class="stat-num" id="numOptimized">-</div>
         <div class="stat-label">After Optimization</div>
       </div>
-      <div class="stat-card" id="statChanges">
+      <div class="stat-card">
         <div class="stat-num" id="numChanges">-</div>
         <div class="stat-label">Optimizations Applied</div>
       </div>
-      <div class="stat-card" id="statReduced">
+      <div class="stat-card">
         <div class="stat-num" id="numReduced">-</div>
         <div class="stat-label">Instructions Removed</div>
       </div>
     </section>
 
-    <!-- IR Panels -->
-    <section class="ir-section" id="irSection" style="display:none">
+    <!-- Three Panels: C Source | Original TAC | Optimized TAC -->
+    <section class="panels-section" id="panelsSection" style="display:none">
+
+      <!-- Panel 1: C Source -->
+      <div class="ir-panel">
+        <div class="panel-header c-header">
+          <span>📝 C Source Code</span>
+        </div>
+        <div class="ir-code c-code" id="cSourcePanel">
+          <div class="no-source" id="noSourceMsg">
+            <span>Load a <code>.c</code> file above to see the source code here</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Original TAC -->
       <div class="ir-panel">
         <div class="panel-header original-header">
-          <span>📄 Original IR</span>
+          <span>📄 Original TAC</span>
         </div>
         <div class="ir-code" id="originalCode"></div>
       </div>
+
+      <!-- Panel 3: Optimized TAC -->
       <div class="ir-panel">
         <div class="panel-header optimized-header">
-          <span>⚡ Optimized IR</span>
+          <span>⚡ Optimized TAC</span>
         </div>
         <div class="ir-code" id="optimizedCode"></div>
       </div>
+
     </section>
 
     <!-- Optimization Log -->
@@ -86,16 +146,43 @@
 
     <!-- Empty state -->
     <section class="empty-state" id="emptyState">
-      <div class="empty-icon">🔧</div>
-      <h2>No data loaded</h2>
-      <p>Run the C++ compiler on a <code>.tac</code> file to generate <code>output.json</code>,<br/>
-         then load it here to visualize the optimizations.</p>
+      <div class="empty-icon">⚙</div>
+      <h2>OptiViz — C Compiler Visualizer</h2>
+      <p>Write a C program, compile it, and visualize the optimization passes.</p>
       <div class="steps">
-        <div class="step"><span class="step-num">1</span> Write a <code>.tac</code> file</div>
-        <div class="step"><span class="step-num">2</span> Run <code>./compiler input.tac output.json</code></div>
-        <div class="step"><span class="step-num">3</span> Load <code>output.json</code> above</div>
+        <div class="step"><span class="step-num">1</span> Write a <code>.c</code> file</div>
+        <div class="step"><span class="step-num">2</span> Run <code>compiler.exe program.c output.json</code></div>
+        <div class="step"><span class="step-num">3</span> Load <code>.c</code> file to see source code</div>
+        <div class="step"><span class="step-num">4</span> Load <code>output.json</code> to see optimizations</div>
+      </div>
+
+      <div class="supported-syntax">
+        <div class="syntax-title">Supported C Syntax</div>
+        <pre class="syntax-example">// Variable declarations
+int x;
+int y = 5;
+
+// Assignments
+x = 2 + 3;
+y = x * 4;
+
+// If / else
+if (x > 3) {
+    y = x + 1;
+} else {
+    y = 0;
+}
+
+// While loop
+while (x > 0) {
+    x = x - 1;
+}
+
+// Return
+return y;</pre>
       </div>
     </section>
+
   </main>
 
   <script src="src/visualizer.js"></script>

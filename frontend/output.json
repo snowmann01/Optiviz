@@ -2,93 +2,93 @@
   "original": [
     {
       "index": 0,
-      "op": "NOP",
-      "result": "",
-      "arg1": "",
-      "arg2": "",
-      "label": "",
-      "cmp_op": "",
-      "text": "NOP"
-    },
-    {
-      "index": 1,
-      "op": "NOP",
-      "result": "",
-      "arg1": "",
-      "arg2": "",
-      "label": "",
-      "cmp_op": "",
-      "text": "NOP"
-    },
-    {
-      "index": 2,
-      "op": "NOP",
-      "result": "",
-      "arg1": "",
-      "arg2": "",
-      "label": "",
-      "cmp_op": "",
-      "text": "NOP"
-    },
-    {
-      "index": 3,
       "op": "ADD",
-      "result": "t1",
+      "result": "t0",
       "arg1": "2",
       "arg2": "3",
       "label": "",
       "cmp_op": "",
-      "text": "t1 = 2 + 3"
+      "text": "t0 = 2 + 3"
     },
     {
-      "index": 4,
+      "index": 1,
+      "op": "ASSIGN",
+      "result": "x",
+      "arg1": "t0",
+      "arg2": "",
+      "label": "",
+      "cmp_op": "",
+      "text": "x = t0"
+    },
+    {
+      "index": 2,
       "op": "MUL",
-      "result": "t2",
-      "arg1": "t1",
+      "result": "t1",
+      "arg1": "x",
       "arg2": "4",
       "label": "",
       "cmp_op": "",
-      "text": "t2 = t1 * 4"
+      "text": "t1 = x * 4"
     },
     {
-      "index": 5,
+      "index": 3,
+      "op": "ASSIGN",
+      "result": "y",
+      "arg1": "t1",
+      "arg2": "",
+      "label": "",
+      "cmp_op": "",
+      "text": "y = t1"
+    },
+    {
+      "index": 4,
       "op": "SUB",
-      "result": "t3",
+      "result": "t2",
       "arg1": "10",
       "arg2": "2",
       "label": "",
       "cmp_op": "",
-      "text": "t3 = 10 - 2"
+      "text": "t2 = 10 - 2"
+    },
+    {
+      "index": 5,
+      "op": "ASSIGN",
+      "result": "z",
+      "arg1": "t2",
+      "arg2": "",
+      "label": "",
+      "cmp_op": "",
+      "text": "z = t2"
     },
     {
       "index": 6,
-      "op": "ADD",
-      "result": "x",
-      "arg1": "t2",
-      "arg2": "t3",
-      "label": "",
-      "cmp_op": "",
-      "text": "x = t2 + t3"
-    },
-    {
-      "index": 7,
       "op": "MUL",
-      "result": "unused",
+      "result": "t3",
       "arg1": "99",
       "arg2": "0",
       "label": "",
       "cmp_op": "",
-      "text": "unused = 99 * 0"
+      "text": "t3 = 99 * 0"
+    },
+    {
+      "index": 7,
+      "op": "ASSIGN",
+      "result": "unused",
+      "arg1": "t3",
+      "arg2": "",
+      "label": "",
+      "cmp_op": "",
+      "text": "unused = t3"
     },
     {
       "index": 8,
       "op": "RETURN",
       "result": "",
-      "arg1": "x",
+      "arg1": "y",
       "arg2": "",
       "label": "",
       "cmp_op": "",
-      "text": "return x"
+      "text": "return y"
     }
   ],
   "optimized": [
@@ -114,33 +114,33 @@
     },
     {
       "index": 2,
-      "op": "NOP",
-      "result": "",
-      "arg1": "",
-      "arg2": "",
-      "label": "",
-      "cmp_op": "",
-      "text": "NOP"
-    },
-    {
-      "index": 3,
-      "op": "NOP",
-      "result": "",
-      "arg1": "",
-      "arg2": "",
-      "label": "",
-      "cmp_op": "",
-      "text": "NOP"
-    },
-    {
-      "index": 4,
       "op": "MUL",
-      "result": "t2",
+      "result": "t1",
       "arg1": "5",
       "arg2": "4",
       "label": "",
       "cmp_op": "",
-      "text": "t2 = 5 * 4"
+      "text": "t1 = 5 * 4"
+    },
+    {
+      "index": 3,
+      "op": "ASSIGN",
+      "result": "y",
+      "arg1": "t1",
+      "arg2": "",
+      "label": "",
+      "cmp_op": "",
+      "text": "y = t1"
+    },
+    {
+      "index": 4,
+      "op": "NOP",
+      "result": "",
+      "arg1": "",
+      "arg2": "",
+      "label": "",
+      "cmp_op": "",
+      "text": "NOP"
     },
     {
       "index": 5,
@@ -154,13 +154,13 @@
     },
     {
       "index": 6,
-      "op": "ADD",
-      "result": "x",
-      "arg1": "t2",
-      "arg2": "8",
+      "op": "NOP",
+      "result": "",
+      "arg1": "",
+      "arg2": "",
       "label": "",
       "cmp_op": "",
-      "text": "x = t2 + 8"
+      "text": "NOP"
     },
     {
       "index": 7,
@@ -176,54 +176,84 @@
       "index": 8,
       "op": "RETURN",
       "result": "",
-      "arg1": "x",
+      "arg1": "y",
       "arg2": "",
       "label": "",
       "cmp_op": "",
-      "text": "return x"
+      "text": "return y"
     }
   ],
   "logs": [
     {
       "pass": "Constant Folding",
-      "lineIndex": 3,
-      "before": "t1 = 2 + 3",
-      "after": "t1 = 5"
+      "lineIndex": 0,
+      "before": "t0 = 2 + 3",
+      "after": "t0 = 5"
     },
     {
       "pass": "Constant Folding",
+      "lineIndex": 4,
+      "before": "t2 = 10 - 2",
+      "after": "t2 = 8"
+    },
+    {
+      "pass": "Constant Folding",
+      "lineIndex": 6,
+      "before": "t3 = 99 * 0",
+      "after": "t3 = 0"
+    },
+    {
+      "pass": "Constant Propagation",
+      "lineIndex": 1,
+      "before": "x = t0",
+      "after": "x = 5"
+    },
+    {
+      "pass": "Constant Propagation",
+      "lineIndex": 2,
+      "before": "t1 = x * 4",
+      "after": "t1 = 5 * 4"
+    },
+    {
+      "pass": "Constant Propagation",
       "lineIndex": 5,
-      "before": "t3 = 10 - 2",
-      "after": "t3 = 8"
+      "before": "z = t2",
+      "after": "z = 8"
     },
     {
-      "pass": "Constant Folding",
+      "pass": "Constant Propagation",
       "lineIndex": 7,
-      "before": "unused = 99 * 0",
+      "before": "unused = t3",
       "after": "unused = 0"
     },
     {
-      "pass": "Constant Propagation",
-      "lineIndex": 4,
-      "before": "t2 = t1 * 4",
-      "after": "t2 = 5 * 4"
-    },
-    {
-      "pass": "Constant Propagation",
-      "lineIndex": 6,
-      "before": "x = t2 + t3",
-      "after": "x = t2 + 8"
+      "pass": "Dead Code Elimination",
+      "lineIndex": 0,
+      "before": "t0 = 5",
+      "after": "REMOVED"
     },
     {
       "pass": "Dead Code Elimination",
-      "lineIndex": 3,
-      "before": "t1 = 5",
+      "lineIndex": 1,
+      "before": "x = 5",
+      "after": "REMOVED"
+    },
+    {
+      "pass": "Dead Code Elimination",
+      "lineIndex": 4,
+      "before": "t2 = 8",
       "after": "REMOVED"
     },
     {
       "pass": "Dead Code Elimination",
       "lineIndex": 5,
-      "before": "t3 = 8",
+      "before": "z = 8",
+      "after": "REMOVED"
+    },
+    {
+      "pass": "Dead Code Elimination",
+      "lineIndex": 6,
+      "before": "t3 = 0",
       "after": "REMOVED"
     },
     {
